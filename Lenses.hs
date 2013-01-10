@@ -10,10 +10,14 @@ setRadius :: Double -> Circle -> Circle
 setRadius r c = c{radius=r}
 
 setOrigin :: Point -> Circle -> Circle
-setOrigin p c = c{origin=p}
+setOrigin p = modifyOrigin (const p)
+
+modifyOrigin :: (Point -> Point) -> Circle -> Circle
+modifyOrigin f c = c{origin=f (origin c)}
 
 setX :: Double -> Point -> Point
 setX v p = p{x=v}
 
 setY :: Double -> Point -> Point
 setY v p = p{y=v}
+
