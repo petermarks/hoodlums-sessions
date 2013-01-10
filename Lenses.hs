@@ -1,13 +1,10 @@
 module Lenses where
 
-data Point = Point Double Double
+data Point = Point {x :: Double, y :: Double}
 	deriving (Eq, Show)
 
-data Circle = Circle Point Double
+data Circle = Circle {origin::Point, radius :: Double}
   deriving (Eq, Show)
 
-radius :: Circle -> Double
-radius (Circle _ r) = r
-
 setRadius :: Double -> Circle -> Circle
-setRadius r (Circle p _) = Circle p r
+setRadius r c = c{radius=r}
