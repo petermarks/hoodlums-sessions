@@ -1,25 +1,11 @@
-{-# LANGUAGE DeriveFoldable #-}
-
 module Life where
 
-import Prelude hiding (concat)
-import Data.Array
-import Data.List hiding (concat)
-import Graphics.Gloss
-import Data.Monoid
 import Control.Applicative
 import Data.Foldable
+import Data.Monoid
+import Graphics.Gloss
 
-data Grid a = Grid (Array (Int,Int) a) (Int, Int)
-  deriving Foldable
-
-class Comonad w where
-  extract :: w a -> a
-  (=>>)   :: w a -> (w a -> b) -> w b
-
-instance Comonad Grid where 
-  extract (Grid a p) = a ! p
-  (Grid a p) =>> f   = Grid ( listArray (bounds a) . map (f . Grid a) $ indices a) p
+import Grid
 
 main :: IO ()
 main = do
@@ -27,26 +13,12 @@ main = do
   let grid = parseGrid gridString
   runGame grid
 
-parseGrid :: String -> Grid Bool
-parseGrid s = Grid ( listArray ((1,1), (width, height)) es) (1,1)
-  where
-    ls     = dropWhile ("!" `isPrefixOf`) $ lines s
-    width  = length $ head ls
-    height = length ls
-    es     = map (== 'O') $ concat $ transpose ls
-
 runGame :: Grid Bool -> IO ()
 runGame grid = 
   simulate (InWindow "Life" (windowSize grid) (10,10)) black 10 grid render step
 
-size :: Grid a -> (Int, Int)
-size (Grid a _) = snd (bounds a)
-
 render :: Grid Bool -> Picture
 render g = color red $ fold $ g =>> renderCell
-
-gridIndex :: Grid a -> (Int, Int)
-gridIndex (Grid _ p) = p
 
 gridIndices :: Grid a -> Grid (Int, Int)
 gridIndices g = g =>> gridIndex
@@ -70,13 +42,6 @@ windowSize _ = (800, 500)
 rule :: Bool -> Int-> Bool
 rule True  i = i == 2 || i == 3
 rule False i = i == 3
-
-gridMove :: (Int, Int) -> Grid a -> Grid a
-gridMove (dx,dy) (Grid a (x,y)) = Grid a (x',y')
-  where
-    (w,h) = snd $ bounds a
-    x' = (x + dx - 1) `mod` w + 1
-    y' = (y + dy - 1) `mod` h + 1
 
 neighbours :: Grid Bool -> Int
 neighbours g = length . filter id $ bools
