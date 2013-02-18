@@ -1,7 +1,9 @@
 module Life where
 
+import Prelude hiding (concat)
 import Control.Applicative
 import Data.Foldable
+import Data.List hiding (concat)
 import Data.Monoid
 import Graphics.Gloss
 
@@ -12,6 +14,14 @@ main = do
   gridString <- readFile "grid.life"
   let grid = parseGrid gridString
   runGame grid
+
+parseGrid :: String -> Grid Bool
+parseGrid s = mkGrid width height es
+  where
+    ls     = dropWhile ("!" `isPrefixOf`) $ lines s
+    width  = length $ head ls
+    height = length ls
+    es     = map (== 'O') $ concat ls
 
 runGame :: Grid Bool -> IO ()
 runGame grid = 
@@ -30,9 +40,9 @@ renderCell g | alive = translate xx yy $
   where
     alive  = extract g
     (x, y) = gridIndex g
-    xx     = fromIntegral $ x * 10    - w * 5 - 15
-    yy     = fromIntegral $ y * (-10) + h * 5 + 15
-    (w, h) = size g
+    xx     = fromIntegral $ x * 10    - gridWidth  g * 5 - 15
+    yy     = fromIntegral $ y * (-10) + gridHeight g * 5 + 15
+
 
 windowSize :: Grid a -> (Int, Int)
 -- windowSize g = (x * 10, y * 10)
