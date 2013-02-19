@@ -40,14 +40,12 @@ renderCell g | alive = translate xx yy $
   where
     alive  = extract g
     (x, y) = gridIndex g
-    xx     = fromIntegral $ x * 10    - gridWidth  g * 5 - 15
-    yy     = fromIntegral $ y * (-10) + gridHeight g * 5 + 15
+    xx     = fromIntegral $ x * 10    - gridWidth  g * 5 + 5
+    yy     = fromIntegral $ y * (-10) + gridHeight g * 5 + 5
 
 
 windowSize :: Grid a -> (Int, Int)
--- windowSize g = (x * 10, y * 10)
---   where (x, y) = size g
-windowSize _ = (800, 500)
+windowSize g = (gridWidth g * 10, gridHeight g * 10)
 
 rule :: Bool -> Int-> Bool
 rule True  i = i == 2 || i == 3
