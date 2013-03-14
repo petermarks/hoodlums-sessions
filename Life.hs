@@ -34,14 +34,13 @@ gridIndices :: Grid a -> Grid (Int, Int)
 gridIndices g = g =>> gridIndex
 
 renderCell :: Grid Bool -> Picture
-renderCell g | alive = translate xx yy $
-                                 rectangleSolid 8 8
+renderCell g | alive = translate xx yy $ rectangleSolid 8 8
              | otherwise = mempty   
   where
     alive  = extract g
     (x, y) = gridIndex g
     xx     = fromIntegral $ x * 10    - gridWidth  g * 5 + 5
-    yy     = fromIntegral $ y * (-10) + gridHeight g * 5 + 5
+    yy     = fromIntegral $ y * (-10) + gridHeight g * 5 - 5
 
 
 windowSize :: Grid a -> (Int, Int)
