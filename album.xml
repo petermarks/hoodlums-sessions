@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#">
+  <release id="8ec7bce7-27ee-3144-a52b-b5bd765860c5">
+    <title>Protection</title>
+    <status>Official</status>
+    <quality>normal</quality>
+    <text-representation>
+      <language>eng</language>
+      <script>Latn</script>
+    </text-representation>
+    <artist-credit>
+      <name-credit>
+        <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+          <name>Massive Attack</name>
+          <sort-name>Massive Attack</sort-name>
+        </artist>
+      </name-credit>
+    </artist-credit>
+    <date>1994-09-26</date>
+    <country>GB</country>
+    <barcode>724383988327</barcode>
+    <asin>B000000W6X</asin>
+    <cover-art-archive>
+      <artwork>true</artwork>
+      <count>1</count>
+      <front>true</front>
+      <back>false</back>
+    </cover-art-archive>
+    <label-info-list count="1">
+      <label-info>
+        <catalog-number>WBRCD2</catalog-number>
+        <label id="b757080f-b10d-49dd-9d7d-ae723112710a">
+          <name>Wild Bunch Records</name>
+          <sort-name>Wild Bunch Records</sort-name>
+          <label-code>3098</label-code>
+        </label>
+      </label-info>
+    </label-info-list>
+    <medium-list count="1">
+      <medium>
+        <position>1</position>
+        <format>CD</format>
+        <disc-list count="7">
+          <disc id="2ibHOy_mSBiEgIvkqgFN5RFtOfg-">
+            <sectors>220815</sectors>
+          </disc>
+          <disc id="ISXOsaOSCfeouLI50RaGBhBYoK0-">
+            <sectors>220817</sectors>
+          </disc>
+          <disc id="LxBa8UchvPblPESHGEAQxa8TYBk-">
+            <sectors>220810</sectors>
+          </disc>
+          <disc id="ixWy0x5huPjTG0BDVRaS3N3MIek-">
+            <sectors>220900</sectors>
+          </disc>
+          <disc id="j22vd212Txf6l7T6tTyhqfzLY_E-">
+            <sectors>222180</sectors>
+          </disc>
+          <disc id="ofQx4VbmI2fT3rKEabLfvrc4LLc-">
+            <sectors>220810</sectors>
+          </disc>
+          <disc id="yM9PsU0MmbS9d84g5_otVa6LbDU-">
+            <sectors>220729</sectors>
+          </disc>
+        </disc-list>
+        <track-list count="10" offset="0">
+          <track>
+            <position>1</position>
+            <number>1</number>
+            <length>473720</length>
+            <recording id="9e599661-19a1-4941-958b-5d66e0da5c79">
+              <title>Protection</title>
+              <length>473720</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>2</position>
+            <number>2</number>
+            <length>318466</length>
+            <recording id="bffca891-5f37-47cf-a38f-4ba51a4d8e0f">
+              <title>Karmacoma</title>
+              <length>318466</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>3</position>
+            <number>3</number>
+            <length>230960</length>
+            <recording id="a9f3a3e9-8585-4786-b1ba-ce41586fbc90">
+              <title>Three</title>
+              <length>230960</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>4</position>
+            <number>4</number>
+            <length>301986</length>
+            <recording id="541edf73-92d8-41ea-8b55-53077cffda9d">
+              <title>Weather Storm</title>
+              <length>301986</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>5</position>
+            <number>5</number>
+            <length>323066</length>
+            <recording id="90d20a71-4b0e-475d-9db9-3a5f0176c4a9">
+              <title>Spying Glass</title>
+              <length>323066</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>6</position>
+            <number>6</number>
+            <length>260560</length>
+            <recording id="873aeb83-3911-4f75-a343-ec2a9f607a17">
+              <title>Better Things</title>
+              <length>260560</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>7</position>
+            <number>7</number>
+            <length>308520</length>
+            <recording id="e69db070-8ff6-47bc-ab5f-d0291ee08dc6">
+              <title>Eurochild</title>
+              <length>308520</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>8</position>
+            <number>8</number>
+            <length>326800</length>
+            <recording id="f837bff5-faf2-4323-81de-91f056207a42">
+              <title>Sly</title>
+              <length>326800</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>9</position>
+            <number>9</number>
+            <length>221186</length>
+            <recording id="a94259b4-3dcb-4904-9b1b-974c95009c65">
+              <title>Heat Miser</title>
+              <length>221186</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+          <track>
+            <position>10</position>
+            <number>10</number>
+            <length>195133</length>
+            <recording id="4d7ea37f-6300-4606-ac08-5107fb541f58">
+              <title>Light My Fire (live)</title>
+              <length>195133</length>
+              <artist-credit>
+                <name-credit>
+                  <artist id="10adbe5e-a2c0-4bf3-8249-2b4cbf6e6ca8">
+                    <name>Massive Attack</name>
+                    <sort-name>Massive Attack</sort-name>
+                  </artist>
+                </name-credit>
+              </artist-credit>
+            </recording>
+          </track>
+        </track-list>
+      </medium>
+    </medium-list>
+  </release>
+</metadata>
