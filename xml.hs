@@ -1,3 +1,5 @@
+{-# language ViewPatterns #-}
+
 module XML where
 
 import Control.Applicative
@@ -5,6 +7,7 @@ import Control.Monad
 import Data.DList
 import Data.Maybe
 import Text.XML.Light
+import Text.XML.Light.Cursor
 
 load :: IO Element
 load = fromJust . parseXMLDoc <$> readFile "album.xml"
@@ -12,23 +15,30 @@ load = fromJust . parseXMLDoc <$> readFile "album.xml"
 pp :: Element -> IO ()
 pp = putStrLn . ppElement
 
-type Trans a = Element -> DList a
+type Trans a = Cursor -> DList a
 
-descendants :: Trans Element
-descendants = fromList . elChildren >=> 
-                  (\e -> return e `mplus` descendants e)
+children :: Trans Cursor
+children (current -> Elem e) = 
+  fromList $ fmap fromElement $ elChildren e
+children _ = mzero
 
-hasTag :: QName -> Trans Element
-hasTag n e | n == elName e = return e
-           | otherwise     = mzero
+descendants :: Trans Cursor
+descendants = children >=> (\c -> return c `mplus` descendants c)
+
+hasTag :: QName -> Trans Cursor
+hasTag n c@(current -> Elem e) | n == elName e = return c
+hasTag _ _ = mzero
+
+getText :: Trans String
+getText (current -> Elem e) = return $ strContent e
+getText _ = mzero
 
 qn :: String -> QName
 qn s = QName s (Just "http://musicbrainz.org/ns/mmd-2.0#") Nothing
 
 trans :: Trans a -> Element -> [a]
-trans t = toList . t
+trans t = toList . t . fromElement
 
 trackNames :: Trans String
-trackNames e = do
-  e' <- descendants >=> hasTag (qn "title") $ e
-  return $ strContent e'
+trackNames =
+  descendants >=> hasTag (qn "title") >=> getText
