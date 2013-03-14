@@ -12,21 +12,23 @@ load = fromJust . parseXMLDoc <$> readFile "album.xml"
 pp :: Element -> IO ()
 pp = putStrLn . ppElement
 
-descendants :: Element -> DList Element
+type Trans a = Element -> DList a
+
+descendants :: Trans Element
 descendants = fromList . elChildren >=> 
                   (\e -> return e `mplus` descendants e)
 
-hasTag :: QName -> Element -> DList Element
+hasTag :: QName -> Trans Element
 hasTag n e | n == elName e = return e
            | otherwise     = mzero
 
 qn :: String -> QName
 qn s = QName s (Just "http://musicbrainz.org/ns/mmd-2.0#") Nothing
 
-trans :: (Element -> DList a) -> Element -> [a]
+trans :: Trans a -> Element -> [a]
 trans t = toList . t
 
-trackNames :: Element -> DList String
+trackNames :: Trans String
 trackNames e = do
   e' <- descendants >=> hasTag (qn "title") $ e
   return $ strContent e'
