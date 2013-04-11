@@ -18,27 +18,25 @@ query  = "select * from album;" -- Whatever query you like
 main :: IO ()
 main = do
   db <- open dbname
-  statement <- prepare db query
-  untilM_ testDone (processRow statement)
+  execQuery db query processRow
 
-testDone :: StepResult -> Bool
-testDone Done = True
-testDone Row  = False
-
-processRow :: Statement -> IO StepResult
+processRow :: Statement -> IO ()
 processRow statement = do
-  stepResult <- step statement
-  case stepResult of
-    Row -> do
-      idx <- columnInt64 statement 0
-      title <- columnText statement 1
-      artistIdx <- columnInt64 statement 2
-      print $ Album idx title artistIdx
-    Done ->
-      putStrLn "All done"
-  return stepResult
+  idx       <- columnInt64 statement 0
+  title     <- columnText statement 1
+  artistIdx <- columnInt64 statement 2
+  print $ Album idx title artistIdx
 
-untilM_ :: (a -> Bool) -> IO a -> IO ()
-untilM_ p a = do
-  r <- a
-  if p r then return () else untilM_ p a
+execQuery :: Database -> Text -> (Statement -> IO ()) -> IO ()
+execQuery db q rowProcessor = do
+  statement <- prepare db q
+  loop statement
+    where
+      loop statement = do
+        stepResult <- step statement
+        case stepResult of
+          Row -> do
+            rowProcessor statement
+            loop statement
+          Done ->
+            return ()
