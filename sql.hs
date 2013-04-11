@@ -23,8 +23,10 @@ processRow statement = do
   stepResult <- step statement
   case stepResult of
     Row -> do
-      cols <- columns statement
-      print cols
+      idx <- columnInt64 statement 0
+      title <- columnText statement 1
+      artistIdx <- columnInt64 statement 2
+      print (idx, title, artistIdx)
     Done ->
       putStrLn "All done"
   return stepResult
