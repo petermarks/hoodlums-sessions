@@ -11,4 +11,7 @@ query  = "select * from album;" -- Whatever query you like
 main :: IO ()
 main = do
   db <- open dbname
-  execPrint db query
+  statement <- prepare db query
+  stepResult <- step statement
+  cols <- columns statement
+  print cols
