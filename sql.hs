@@ -12,6 +12,15 @@ main :: IO ()
 main = do
   db <- open dbname
   statement <- prepare db query
+  processRows statement
+
+processRows :: Statement -> IO ()
+processRows statement = do
   stepResult <- step statement
-  cols <- columns statement
-  print cols
+  case stepResult of
+    Row -> do
+      cols <- columns statement
+      print cols
+      processRows statement
+    Done ->
+      putStrLn "All done"
