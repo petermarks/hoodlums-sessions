@@ -5,6 +5,7 @@ module SQL where
 import Database.SQLite3
 import Data.Text
 import Data.Int (Int64)
+import Data.Function
 
 data Album = Album {
   albumIdx       :: Int64,
@@ -30,13 +31,11 @@ processRow statement = do
 execQuery :: Database -> Text -> (Statement -> IO ()) -> IO ()
 execQuery db q rowProcessor = do
   statement <- prepare db q
-  loop statement
-    where
-      loop statement = do
-        stepResult <- step statement
-        case stepResult of
-          Row -> do
-            rowProcessor statement
-            loop statement
-          Done ->
-            return ()
+  fix $ \loop -> do
+    stepResult <- step statement
+    case stepResult of
+      Row -> do
+        rowProcessor statement
+        loop
+      Done ->
+        return ()
