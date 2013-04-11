@@ -4,6 +4,13 @@ module SQL where
 
 import Database.SQLite3
 import Data.Text
+import Data.Int (Int64)
+
+data Album = Album {
+  albumIdx       :: Int64,
+  albumTitle     :: Text,
+  albumArtistIdx :: Int64
+} deriving Show
 
 dbname = "chinook.sqlite" -- Change this to your DB
 query  = "select * from album;" -- Whatever query you like
@@ -26,7 +33,7 @@ processRow statement = do
       idx <- columnInt64 statement 0
       title <- columnText statement 1
       artistIdx <- columnInt64 statement 2
-      print (idx, title, artistIdx)
+      print $ Album idx title artistIdx
     Done ->
       putStrLn "All done"
   return stepResult
