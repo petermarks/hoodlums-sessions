@@ -12,15 +12,24 @@ main :: IO ()
 main = do
   db <- open dbname
   statement <- prepare db query
-  processRows statement
+  untilM_ testDone (processRow statement)
 
-processRows :: Statement -> IO ()
-processRows statement = do
+testDone :: StepResult -> Bool
+testDone Done = True
+testDone Row  = False
+
+processRow :: Statement -> IO StepResult
+processRow statement = do
   stepResult <- step statement
   case stepResult of
     Row -> do
       cols <- columns statement
       print cols
-      processRows statement
     Done ->
       putStrLn "All done"
+  return stepResult
+
+untilM_ :: (a -> Bool) -> IO a -> IO ()
+untilM_ p a = do
+  r <- a
+  if p r then return () else untilM_ p a
