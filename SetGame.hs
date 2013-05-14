@@ -29,6 +29,20 @@ allEnum = [minBound .. maxBound]
 shuffle :: RandomGen g => g -> [a] -> [a]
 shuffle g = map snd . sortBy (comparing fst) . zip (randoms g :: [Double])
 
+isSet :: Card -> Card -> Card -> Bool
+isSet card1 card2 card3 = and [ good colour
+                              , good shape
+                              , good fill
+                              , good number
+                              ]
+ where
+   good f = isGood f [card1, card2, card3]  
+
+isGood :: Eq a => (Card -> a) -> [Card]-> Bool
+isGood f cards = let uniq = length . nub $ map f cards 
+                  in uniq == 1 || uniq == length cards
+
+
 
 main :: IO()
 main = do
