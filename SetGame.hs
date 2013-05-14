@@ -18,11 +18,16 @@ data Card = Card
   , number :: Number
   } deriving (Eq, Ord)
 
+data GameState = GameState { hand :: [Card]
+                           , deck :: [Card]
+                           , sets :: [(Card, Card, Card)]
+                           } deriving (Show)
+
 instance Show Card where
   show (Card c s f n) = unwords [show n, show c, show f, show s] 
 
-deck :: [Card]
-deck = Card <$> allEnum <*> allEnum <*> allEnum <*> allEnum
+fullDeck :: [Card]
+fullDeck = Card <$> allEnum <*> allEnum <*> allEnum <*> allEnum
 
 allEnum :: (Enum a, Bounded a) => [a]
 allEnum = [minBound .. maxBound]
@@ -36,17 +41,17 @@ isSet card1 card2 card3 = and [ good colour
                               , good fill
                               , good number
                               ]
- where
-   good f = isGood f [card1, card2, card3]  
+  where
+    good f = isGood f [card1, card2, card3]  
 
 isGood :: Eq a => (Card -> a) -> [Card]-> Bool
 isGood f cards = let uniq = length . nub $ map f cards 
                   in uniq == 1 || uniq == length cards
 
 findSet :: [Card] -> Maybe ( (Card, Card, Card), [Card] )
-findSet hand = listToMaybe
+findSet h = listToMaybe
                  [ ((c1, c2, c3), h3)
-                 | (c1, h1) <- pick hand
+                 | (c1, h1) <- pick h
                  , (c2, h2) <- pick h1
                  , (c3, h3) <- pick h2
                  , isSet c1 c2 c3 
@@ -60,5 +65,19 @@ pick as = unfoldr f ([], as)
 main :: IO()
 main = do
     g <- newStdGen
-    mapM_ print (take 10 (shuffle g deck))
+    mapM_ print $ runGame g
 
+initialState :: RandomGen r => r -> GameState
+initialState r = GameState { hand = [], deck = shuffle r fullDeck, sets = [] }
+
+runGame :: RandomGen r => r -> [(Card, Card, Card)]
+runGame = sets . until done play . initialState
+
+done :: GameState -> Bool
+done s = null (hand s) && null (deck s)
+
+play :: GameState -> GameState
+play (GameState h d ss)
+  | Just (s, h') <- findSet h = GameState h' d (s : ss)
+  | null d                    = GameState [] [] ss
+  | otherwise                 = let (h', d') = splitAt 3 d in GameState (h' ++ h) d' ss
