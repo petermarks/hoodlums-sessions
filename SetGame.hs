@@ -47,18 +47,13 @@ isSet card1 card2 card3 = good colour && good shape && good fill && good number
 
 findSet :: [Card] -> Maybe ((Card, Card, Card), [Card])
 findSet h = listToMaybe
-  [ ((c1, c2, c3), h3)
-  | (c1, h1) <- pick h
-  , (c2, h2) <- pick h1
-  , (c3, h3) <- pick h2
-  , isSet c1 c2 c3 
+  [ ((c1, c2, c3), h')
+  | c1 : h1 <- tails h
+  , c2 : h2 <- tails h1
+  , c3 : _  <- tails h2
+  , isSet c1 c2 c3
+  , let h' = h \\ [c1, c2, c3]
   ] 
-
-pick :: [a] -> [(a, [a])]
-pick h = unfoldr f ([], h)
-  where
-    f (_, [])       = Nothing
-    f (as, a : as') = Just ((a, as ++ as') , (a : as, as'))
 
 main :: IO()
 main = do
