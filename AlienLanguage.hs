@@ -1,6 +1,7 @@
 module AlienLanguage where
 
 import Text.Printf
+import Text.Regex.Posix
 
 main :: IO ()
 main = interact go
@@ -15,7 +16,16 @@ parse content =
   in splitAt dictionarySize body
 
 process :: [String] -> [String] -> [Int]
-process dictionary patterns = [ length dictionary, length patterns ]
+process dictionary = map (testPattern dictionary)
+
+testPattern :: [String] -> String -> Int
+testPattern dictionary pattern = length $ filter (=~ pattern') dictionary
+  where
+    pattern' = map f pattern
+    f '(' = '['
+    f ')' = ']'
+    f c   = c
+    
 
 output :: [Int] -> String
 output = unlines . zipWith (printf "Case #%d: %d") [(1::Int)..]
