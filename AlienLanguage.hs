@@ -3,6 +3,7 @@ module AlienLanguage where
 import Text.Printf
 import Data.Bits
 import Data.Char
+import Control.Parallel.Strategies
 
 main :: IO ()
 main = interact go
@@ -17,7 +18,7 @@ parse content =
   in splitAt dictionarySize body
 
 process :: [String] -> [String] -> [Int]
-process dictionary = map (testPattern dictionary' . patternToBits)
+process dictionary = parMap rseq (testPattern dictionary' . patternToBits)
   where
     dictionary' = map wordToBits dictionary
 
