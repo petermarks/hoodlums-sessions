@@ -4,27 +4,27 @@ import Control.Monad
 import Network.Socket
 import Text.Printf
 
-data Player = Player String HostAddress PortNumber deriving (Show)
+data Player a = Player String a deriving (Eq, Show)
 
 main :: IO ()
 main = withSocketsDo $ do
   players <- loadPlayers "players.txt"
   playRound players
 
-loadPlayers :: FilePath -> IO [Player]
+loadPlayers :: FilePath -> IO [Player SockAddr]
 loadPlayers path = do
   file <- readFile path
   forM (takeWhile (not . null) $ lines file) $ \line -> do
     let [name, ip, port] = words line
     addr <- inet_addr ip
-    return $ Player name addr (fromIntegral $ read port)
+    return $ Player name $ SockAddrInet (fromIntegral $ read port) addr
 
 
-playRound :: [Player] -> IO ()
+playRound :: [Player SockAddr] -> IO ()
 playRound ps = do
   ss <- openSockets ps
   let pairs = [(p, q) | p <- ss, q <- ss, p /= q]
-  forM_ pairs $ \((name1, sock1), (name2, sock2)) -> do
+  forM_ pairs $ \(Player name1 sock1, Player name2 sock2) -> do
     send sock1 "play"
     answer1 <- recv sock1 1024
     send sock2 "play"
@@ -36,16 +36,15 @@ playRound ps = do
       Draw -> printf "%s and %s draw\n" name1 name2
   closeSockets ss
 
-openSockets :: [Player] -> IO [(String, Socket)]
-openSockets ps = forM ps $ \(Player name host port) -> do
-  putStrLn name
+openSockets :: [Player SockAddr] -> IO [Player Socket]
+openSockets ps = forM ps $ \(Player name sockAddr) -> do
+  printf "Trying to open %s\n" name
   sock <- socket AF_INET Stream defaultProtocol
-  let sockAddr = SockAddrInet port host
   connect sock sockAddr
   putStrLn "opened"
-  return (name, sock)
+  return $ Player name sock
 
-closeSockets :: [(String, Socket)] -> IO ()
+closeSockets :: [Player Socket] -> IO ()
 closeSockets = mapM_ (sClose . snd)
 
 data Result = First | Second | Draw
