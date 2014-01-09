@@ -1,3 +1,5 @@
+{-# language RecordWildCards #-}
+
 module Synacor where
 
 import Control.Applicative
@@ -18,22 +20,17 @@ run :: Machine -> String -> String
 run m i = evalState (run' i) m
 
 run' :: String -> Syn String 
-run' input = getMem 0 >>= \inst -> case inst of
+run' input = getMem >>= \inst -> case inst of
   0  -> return []
   19 -> do
-    c <- chr . fromIntegral <$> getValue 1
-    incip 2
+    c <- chr . fromIntegral <$> getValue
     (c :) <$> run' input
   20 -> do
     let (c:input') = input
-    addr <- getAddr 1
+    addr <- getAddr
     store addr (fromIntegral $ ord c)
-    incip 2
     run' input'
-  21 -> incip 1 >> run' input
-
-incip :: Int -> Syn ()
-incip n = modify $ \s -> s{ip = ip s + n}
+  21 -> getMem >> run' input
 
 retrieve :: Int -> Syn Word16
 retrieve addr = (M.! addr) <$> gets mem
@@ -41,15 +38,18 @@ retrieve addr = (M.! addr) <$> gets mem
 store :: Int -> Word16 -> Syn ()
 store addr value = modify $ \s -> s{mem = M.insert addr value (mem s)}
 
-getMem :: Int -> Syn Word16
-getMem offset = (M.!) <$> gets mem <*> gets ((+ offset) . ip)
+getMem :: Syn Word16
+getMem = do
+  m@Machine{..} <- get
+  put $ m{ip = ip + 1}
+  return $ mem M.! ip
 
-getAddr :: Int -> Syn Int
-getAddr offset = fromIntegral <$> getMem offset
+getAddr :: Syn Int
+getAddr = fromIntegral <$> getMem
 
-getValue :: Int -> Syn Word16
-getValue n = do
-  i <- getMem n
+getValue :: Syn Word16
+getValue = do
+  i <- getMem
   if i > 32767 then retrieve (fromIntegral i) else return i
 
 load :: [Word16] -> Machine
