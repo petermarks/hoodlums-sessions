@@ -22,6 +22,12 @@ run m i = evalState (run' i) m
 run' :: String -> Syn String 
 run' input = getMem >>= \inst -> case inst of
   0  -> return []
+  9  -> do
+    addr <- getAddr
+    a    <- getValue
+    b    <- getValue
+    store addr ((a + b) `mod` 32768)
+    run' input
   19 -> do
     c <- chr . fromIntegral <$> getValue
     (c :) <$> run' input
