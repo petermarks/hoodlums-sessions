@@ -5,11 +5,16 @@ module ElectronicsCalc where
 import Numeric.Units.Dimensional.TF.Prelude hiding (Power)
 import qualified Prelude
 import Text.Printf
+import Text.Parsec
+import Text.Parsec.Language
+import Text.Parsec.Token
+import Text.Parsec.String
+import Control.Applicative
 
-type Resistance = ElectricResistance  Rational
-type Current    = ElectricCurrent     Rational
-type Voltage    = PotentialDifference Rational
-type Power      = Quantity DPower     Rational
+type Resistance = ElectricResistance  Double
+type Current    = ElectricCurrent     Double
+type Voltage    = PotentialDifference Double
+type Power      = Quantity DPower     Double
 
 data ElecInfo = ElecInfo
   { resistance :: Resistance
@@ -25,16 +30,19 @@ class Pretty a where
   pretty :: a -> String
 
 instance Pretty Resistance where
-  pretty x = printf "%f ohm" (fromRational $ x /~ ohm :: Double)
+  pretty x = printf "%f ohm" (x /~ ohm)
 
 instance Pretty Current where
-  pretty x = printf "%f A" (fromRational $ x /~ ampere :: Double)
+  pretty x = printf "%f A" (x /~ ampere)
 
 instance Pretty Voltage where
-  pretty x = printf "%f V" (fromRational $ x /~ volt :: Double)
+  pretty x = printf "%f V" (x /~ volt)
 
 instance Pretty Power where
-  pretty x = printf "%f W" (fromRational $ x /~ watt :: Double)
+  pretty x = printf "%f W" (x /~ watt)
 
 instance Pretty ElecInfo where
   pretty (ElecInfo r i v p) = unlines [pretty r, pretty i, pretty v, pretty p]
+
+resistanceP :: Parser Resistance
+resistanceP = (*~ ohm) <$> float haskell <* char 'o'
