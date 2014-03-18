@@ -11,6 +11,13 @@ type Current    = ElectricCurrent     Rational
 type Voltage    = PotentialDifference Rational
 type Power      = Quantity DPower     Rational
 
+data ElecInfo = ElecInfo
+  { resistance :: Resistance
+  , current    :: Current
+  , voltage    :: Voltage
+  , power      :: Power
+  }
+
 test :: Resistance
 test = (30 *~ volt) / (5 *~ ampere)
 
@@ -29,3 +36,5 @@ instance Pretty Voltage where
 instance Pretty Power where
   pretty x = printf "%f W" (fromRational $ x /~ watt :: Double)
 
+instance Pretty ElecInfo where
+  pretty (ElecInfo r i v p) = unlines [pretty r, pretty i, pretty v, pretty p]
