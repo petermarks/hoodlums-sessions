@@ -5,7 +5,7 @@ module ElectronicsCalc where
 import Numeric.Units.Dimensional.TF.Prelude hiding (Power)
 import qualified Prelude
 import Text.Printf
-import Text.Parsec
+import Text.Parsec hiding ((<|>))
 import Text.Parsec.Language
 import Text.Parsec.Token
 import Text.Parsec.String
@@ -45,4 +45,26 @@ instance Pretty ElecInfo where
   pretty (ElecInfo r i v p) = unlines [pretty r, pretty i, pretty v, pretty p]
 
 resistanceP :: Parser Resistance
-resistanceP = (*~ ohm) <$> float haskell <* char 'o'
+resistanceP = lexeme haskell $ (*~ ohm) <$> float haskell <* char 'o'
+
+currentP :: Parser Current
+currentP = lexeme haskell $ (*~ ampere) <$> float haskell <* char 'a'
+
+voltageP :: Parser Voltage
+voltageP = lexeme haskell $ (*~ volt) <$> float haskell <* char 'v'
+
+powerP :: Parser Power
+powerP = lexeme haskell $ (*~ watt) <$> float haskell <* char 'w'
+
+mainP :: Parser ElecInfo
+mainP = do
+  (r, v) <- permute resistanceP voltageP
+  let i = v / r
+  let p = v * i
+  return $ ElecInfo r i v p
+
+permute :: Parser a -> Parser b -> Parser (a, b)
+permute ap bp = try abp <|> bap
+  where
+    abp =      (,) <$> ap <*> bp
+    bap = flip (,) <$> bp <*> ap
