@@ -42,14 +42,21 @@ instance Interpreter (Roller Int) where
 -------------------------------------------------------------
 -- Range instance
 
-newtype Range = Range (Int, Int)
+data Range a = Range a a
   deriving (Show)
 
-instance Interpreter Range where
-  roll x = Range (1, x)
-  mult x (Range (rmin, rmax)) = Range (rmin * x, rmax * x)
-  add (Range (lmin, lmax)) (Range (rmin, rmax)) = Range (lmin + rmin, lmax + rmax)
-  lit x = Range (x, x)
+instance Functor Range where
+  fmap f (Range a b) = Range (f a) (f b)
+
+instance Applicative Range where
+  pure a = Range a a
+  (Range fa fb) <*> (Range a b) = Range (fa a) (fb b)
+
+instance Interpreter (Range Int) where
+  roll x = Range 1 x
+  mult x = fmap (* x)
+  add    = liftA2 (+)
+  lit    = pure
 
 
 -------------------------------------------------------------
@@ -63,4 +70,4 @@ main = do
   gen <- newStdGen
   let n = runRoller test gen
   print n
-  print (test :: Range)
+  print (test :: Range Int)
