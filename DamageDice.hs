@@ -5,6 +5,8 @@ module DamageDice where
 import System.Random
 import Control.Monad.State
 import Control.Applicative
+import qualified Data.Map as M
+import Data.List
 
 
 -------------------------------------------------------------
@@ -60,6 +62,16 @@ instance Interpreter (Range Int) where
 
 
 -------------------------------------------------------------
+-- Distribution instance
+
+instance Interpreter (M.Map Int Double) where
+  roll x   = M.fromList $ zip [1..x] (repeat $ 1 / fromIntegral x)
+  mult x   = foldl1' add . replicate x
+  add  l r = M.fromListWith (+) [(lk + rk, lv * rv) | (lk, lv) <- M.toList l, (rk, rv) <- M.toList r]
+  lit  x   = M.singleton x 1
+
+
+-------------------------------------------------------------
 -- Main
 
 test :: (Interpreter i) => i
@@ -71,3 +83,4 @@ main = do
   let n = runRoller test gen
   print n
   print (test :: Range Int)
+  print (test :: M.Map Int Double)
