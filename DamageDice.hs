@@ -2,6 +2,7 @@ module DamageDice where
 
 import System.Random
 import Control.Monad.State
+import Control.Applicative
 
 type Roller = State StdGen
 
@@ -16,11 +17,7 @@ roll x = do
   return n
 
 mult :: Int -> Roller Int -> Roller Int
-mult 0 _ = return 0
-mult x r = do
-  n <- r
-  m <- mult (x - 1) r
-  return $ n + m
+mult x r = sum <$> replicateM x r
 
 test :: Roller Int
 test = mult 2 $ roll 6
