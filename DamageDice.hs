@@ -40,6 +40,19 @@ instance Interpreter (Roller Int) where
 
 
 -------------------------------------------------------------
+-- Range instance
+
+newtype Range = Range (Int, Int)
+  deriving (Show)
+
+instance Interpreter Range where
+  roll x = Range (1, x)
+  mult x (Range (rmin, rmax)) = Range (rmin * x, rmax * x)
+  add (Range (lmin, lmax)) (Range (rmin, rmax)) = Range (lmin + rmin, lmax + rmax)
+  lit x = Range (x, x)
+
+
+-------------------------------------------------------------
 -- Main
 
 test :: (Interpreter i) => i
@@ -50,3 +63,4 @@ main = do
   gen <- newStdGen
   let n = runRoller test gen
   print n
+  print (test :: Range)
