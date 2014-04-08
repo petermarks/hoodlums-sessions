@@ -19,8 +19,14 @@ roll x = do
 mult :: Int -> Roller Int -> Roller Int
 mult x r = sum <$> replicateM x r
 
+add :: Roller Int -> Roller Int -> Roller Int
+add = liftA2 (+)
+
+lit :: Int -> Roller Int
+lit = pure
+
 test :: Roller Int
-test = mult 2 $ roll 6
+test = mult 2 (roll 6 ) `add` lit 17
 
 main :: IO ()
 main = do
