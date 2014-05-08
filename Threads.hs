@@ -1,10 +1,34 @@
 {-# language TypeSynonymInstances, FlexibleInstances, 
-      GADTs, KindSignatures, GeneralizedNewtypeDeriving #-}
+      GADTs, KindSignatures, ExistentialQuantification #-}
 
 module Threads where
 
-newtype Thread a = Thread {runThread :: IO a}
-  deriving Monad
+import Control.Monad
+
+data Thread a
+  = forall b . Step {action :: IO b, callback :: b -> Thread a}
+  | Return a
+
+instance Monad Thread where
+  return = Return
+  (Return v) >>= f = f v
+  (Step action cont) >>= f = Step action (cont >=> f)
+
+runThreads :: [Thread a] -> IO [a]
+runThreads ts 
+  | Just vs <- values = return vs
+  | otherwise         = mapM f ts >>= runThreads
+  where
+    f :: Thread a -> IO (Thread a)
+    f (Return v)         = return $ Return v
+    f (Step action cont) = fmap cont action
+    values           = mapM value ts
+    value (Return v) = Just v
+    value _          = Nothing
+
+runThread :: Thread a -> IO a
+runThread (Return v) = return v
+runThread (Step action cont) = action >>= runThread . cont
 
 data V :: * -> * where
   VString :: String -> V String
@@ -20,7 +44,7 @@ instance ToV Int where
   v = VInt
 
 out :: V String -> Thread ()
-out (VString s) = Thread $ putStrLn s
+out (VString s) = Step (putStrLn s) Return
 
 toString :: V Int -> V String
 toString (VInt i) = VString $ show i
@@ -39,4 +63,4 @@ test = go (v 5)
     go i = ifZero i (return ()) (out (toString i) >> go (dec i))
 
 main :: IO ()
-main = runThread test
+main = void $ runThreads [test, test]
