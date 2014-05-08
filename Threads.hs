@@ -1,12 +1,22 @@
+{-# language GADTs, KindSignatures #-}
+
 module Threads where
 
 newtype Thread a = Thread {runThread :: IO a}
 
-out :: String -> Thread ()
-out = Thread . putStrLn
+data V :: * -> * where
+  VString :: String -> V String
+
+v :: String -> V String
+v = VString
+
+out :: V String -> Thread ()
+out (VString s) = Thread $ putStrLn s
+
+------------------------------------------------------------
 
 test :: Thread ()
-test = out "Hello"
+test = out $ v "Hello"
 
 main :: IO ()
 main = runThread test
