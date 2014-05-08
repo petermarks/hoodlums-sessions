@@ -1,12 +1,9 @@
 module Threads where
 
-type Thread = IO
-
-runThread :: Thread a -> IO a
-runThread = id
+newtype Thread a = Thread {runThread :: IO a}
 
 out :: String -> Thread ()
-out = putStrLn
+out = Thread . putStrLn
 
 test :: Thread ()
 test = out "Hello"
