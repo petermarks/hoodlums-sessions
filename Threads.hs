@@ -1,9 +1,10 @@
 {-# language TypeSynonymInstances, FlexibleInstances, 
-      GADTs, KindSignatures #-}
+      GADTs, KindSignatures, GeneralizedNewtypeDeriving #-}
 
 module Threads where
 
 newtype Thread a = Thread {runThread :: IO a}
+  deriving Monad
 
 data V :: * -> * where
   VString :: String -> V String
@@ -24,10 +25,18 @@ out (VString s) = Thread $ putStrLn s
 toString :: V Int -> V String
 toString (VInt i) = VString $ show i
 
+dec :: V Int -> V Int
+dec (VInt i) = VInt $ i - 1
+
+ifZero :: V Int -> Thread a -> Thread a -> Thread a
+ifZero (VInt i) t f = if i == 0 then t else f
+
 ------------------------------------------------------------
 
 test :: Thread ()
-test = out $ toString $ v 123
+test = go (v 5)
+  where
+    go i = ifZero i (return ()) (out (toString i) >> go (dec i))
 
 main :: IO ()
 main = runThread test
