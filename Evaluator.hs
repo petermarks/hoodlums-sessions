@@ -1,3 +1,6 @@
+{-# LANGUAGE TypeFamilies, TypeSynonymInstances, StandaloneDeriving, FlexibleContexts,
+    UndecidableInstances #-}
+
 module Evaluator where
 
 import Prelude hiding (sum)
@@ -19,3 +22,28 @@ instance ExprSym Identity where
 
 evaluate :: Identity a -> a
 evaluate = runIdentity
+
+data IntExpr
+  = LitI Int
+  | Add IntExpr IntExpr
+  | Sum (ListExpr Int)
+  deriving Show
+
+data ListExpr a
+  = LitL [ExprType a]
+
+deriving instance (Show (ExprType a)) => Show (ListExpr a)
+
+type family ExprType a
+
+type instance ExprType Int = IntExpr
+
+type instance ExprType [a] = ListExpr a
+
+newtype Expr t = Expr {unExpr :: ExprType t}
+
+instance ExprSym Expr where
+  litI = Expr . LitI
+  litL = Expr . LitL . map unExpr
+  add a b = Expr $ Add (unExpr a) (unExpr b)
+  sum = Expr . Sum . unExpr
