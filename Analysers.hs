@@ -1,4 +1,4 @@
-{-# language RecordWildCards #-}
+{-# language BangPatterns, RecordWildCards #-}
 
 module Analysers where
 
@@ -38,36 +38,40 @@ process :: Analyser s -> String -> String
 process Analyser{..} = finish . foldl' analyse initial
 
 data AnalyserA = AnalyserA
-  { analyseA  :: Char -> AnalyserA
+  { analyseA  :: Char -> AnalyserA  -- No strictness necessary as function is call is forced on each step
   , finishA   :: String
   }
 
 countA :: AnalyserA
 countA = go 0
   where
-    go i = AnalyserA
-      { analyseA = \_ -> go $! i + 1
+    go !i = AnalyserA
+      { analyseA = \_ -> go $ i + 1
       , finishA  = show i
       }
 
 freqA :: AnalyserA
 freqA = go (0 `Pair` 0)
   where
-    go (Pair t f) = AnalyserA
-      { analyseA = \c -> go $! if c == 'a' then (t + 1) `Pair` f else t `Pair` (f + 1)
+    go !(Pair t f) = AnalyserA
+      { analyseA = \c -> go $ if c == 'a' then (t + 1) `Pair` f else t `Pair` (f + 1)
       , finishA  = show $ fromIntegral t / fromIntegral (t + f)
       }
 
 mkA :: Analyser s -> AnalyserA
 mkA Analyser{..} = go initial
   where
-    go s = AnalyserA
-      { analyseA = \c -> go $! analyse s c
+    go !s = AnalyserA  -- Strictness necessary to force state
+      { analyseA = \c -> go $ analyse s c  -- Strictness here doesn't help as nothing would be forced until the final lambda is called
       , finishA  = finish s
       }
 
 processA :: [AnalyserA] -> String -> String
-processA as = unlines . map finishA . foldl' (\as' c -> (flip analyseA c) <$!> as') as
+processA as = unlines . map finishA . foldl' (\as' c -> mapStrict (flip analyseA c) as') as
+
+mapStrict :: (a -> b) -> [a] -> [b]
+mapStrict _ [] = []
+mapStrict f (x:xs) = ((:) $! f x) $! mapStrict f xs
 
 main :: IO ()
 main = do
