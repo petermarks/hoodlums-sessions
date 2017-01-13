@@ -1,21 +1,24 @@
-{-# language BangPatterns, RecordWildCards #-}
+{-# language BangPatterns, RecordWildCards, ExistentialQuantification #-}
 
 module Analysers where
 
 import Data.List
 import Control.Monad
 
-data Analyser s = Analyser
-  { initial  :: s
-  , analyse  :: s -> Char -> s
-  , finish   :: s -> String
-  }
-
 -- Create a pair forcing both values
 (*!) :: a -> b -> (a, b)
 (*!) !a !b = (a, b)
 
 infixl 1 *!
+
+
+-- Solution: Compound analyser
+
+data Analyser s = Analyser
+  { initial  :: s
+  , analyse  :: s -> Char -> s
+  , finish   :: s -> String
+  }
 
 count :: Analyser Int
 count = Analyser
@@ -41,6 +44,9 @@ pair a b = Analyser
 process :: Analyser s -> String -> String
 process Analyser{..} = finish . foldl' analyse initial
 
+
+-- Solution: Automata
+
 data AnalyserA = AnalyserA
   { analyseA  :: Char -> AnalyserA  -- No strictness necessary as function is call is forced on each step
   , finishA   :: String
@@ -62,6 +68,9 @@ freqA = go (0, 0)
       , finishA  = show $ fromIntegral t / fromIntegral (t + f)
       }
 
+
+-- Solution: Automaton wrapper
+
 mkA :: Analyser s -> AnalyserA
 mkA Analyser{..} = go initial
   where
@@ -77,9 +86,30 @@ mapStrict :: (a -> b) -> [a] -> [b]
 mapStrict _ [] = []
 mapStrict f (x:xs) = ((:) $! f x) $! mapStrict f xs
 
+
+-- Solution: Existentials and an indexed pair
+
+-- Some general machinary, probably available in various libraries
+data IPair f g = forall i . f i :*: g i
+newtype I i = I i
+data Some f = forall i . Some (f i)
+
+-- Keeps the states paired with the analysers so that types are know to match
+processI :: [Some Analyser] -> String -> String
+processI as = unlines . finishes . foldl' analyses initials
+  where
+    initials :: [IPair I Analyser]  -- A list of pairs of matching states and analysers
+    initials       = map (\(Some a) -> I (initial a) :*: a) as
+    analyses as' c = mapStrict (\(I s :*: a) -> let !s' = I (analyse a s c) in s' :*: a) as'
+    finishes       = map (\(I s :*: a) -> finish a s)
+
+
+-- Top level
+
 main :: IO ()
 main = do
   text <- readFile "book.txt"
-  putStrLn $ process (pair count freq) text
+  -- putStrLn $ process (pair count freq) text
   -- putStrLn $ processA [countA, freqA] text
   -- putStrLn $ processA [mkA count, mkA freq] text
+  putStrLn $ processI [Some count, Some freq] text
