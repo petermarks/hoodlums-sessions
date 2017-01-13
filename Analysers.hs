@@ -11,7 +11,11 @@ data Analyser s = Analyser
   , finish   :: s -> String
   }
 
-data Pair a b = Pair !a !b
+-- Create a pair forcing both values
+(*!) :: a -> b -> (a, b)
+(*!) !a !b = (a, b)
+
+infixl 1 *!
 
 count :: Analyser Int
 count = Analyser
@@ -20,18 +24,18 @@ count = Analyser
   , finish  = show
   }
 
-freq :: Analyser (Pair Int Int)
+freq :: Analyser (Int, Int)
 freq = Analyser
-  { initial = 0 `Pair` 0
-  , analyse = \(Pair t f) c -> if c == 'a' then (t + 1) `Pair` f else t `Pair` (f + 1)
-  , finish  = \(Pair t f) -> show $ fromIntegral t / fromIntegral (t + f)
+  { initial = 0 *! 0
+  , analyse = \(t, f) c -> if c == 'a' then (t + 1) *! f else t *! (f + 1)
+  , finish  = \(t, f) -> show $ fromIntegral t / fromIntegral (t + f)
   }
 
-pair :: Analyser s1 -> Analyser s2 -> Analyser (Pair s1 s2)
+pair :: Analyser s1 -> Analyser s2 -> Analyser (s1, s2)
 pair a b = Analyser
-  { initial = initial a `Pair` initial b
-  , analyse = \(Pair sa sb) c -> analyse a sa c `Pair` analyse b sb c
-  , finish  = \(Pair sa sb) -> finish a sa ++ '\n' : finish b sb
+  { initial = initial a *! initial b
+  , analyse = \(sa, sb) c -> analyse a sa c *! analyse b sb c
+  , finish  = \(sa, sb) -> finish a sa ++ '\n' : finish b sb
   }
 
 process :: Analyser s -> String -> String
@@ -51,10 +55,10 @@ countA = go 0
       }
 
 freqA :: AnalyserA
-freqA = go (0 `Pair` 0)
+freqA = go (0, 0)
   where
-    go !(Pair t f) = AnalyserA
-      { analyseA = \c -> go $ if c == 'a' then (t + 1) `Pair` f else t `Pair` (f + 1)
+    go (!t, !f) = AnalyserA
+      { analyseA = \c -> go $ if c == 'a' then (t + 1, f) else (t, f + 1)
       , finishA  = show $ fromIntegral t / fromIntegral (t + f)
       }
 
@@ -76,6 +80,6 @@ mapStrict f (x:xs) = ((:) $! f x) $! mapStrict f xs
 main :: IO ()
 main = do
   text <- readFile "book.txt"
-  -- putStrLn $ process (pair count freq) text
+  putStrLn $ process (pair count freq) text
   -- putStrLn $ processA [countA, freqA] text
-  putStrLn $ processA [mkA count, mkA freq] text
+  -- putStrLn $ processA [mkA count, mkA freq] text
