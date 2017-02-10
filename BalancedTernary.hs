@@ -19,7 +19,8 @@ instance Show BTDigit where
   showsPrec _ Minus = ('-' :)
   showsPrec _ Zero  = ('0' :)
   showsPrec _ Plus  = ('+' :)
-  showList = flip (foldr shows)
+  showList [] = ('0' :)
+  showList ds = flip (foldr shows) ds
 
 instance Read BTDigit where
   readsPrec _ [] = []
@@ -35,7 +36,6 @@ instance Read BTDigit where
       (ds, xs) : _ -> [(d:ds, xs)]
 
 fromInteger' :: Integer -> BTNum
-fromInteger' 0 = [Zero]
 fromInteger' i = go i []
   where
     go 0 a = a
@@ -47,3 +47,24 @@ toInteger' :: BTNum -> Integer
 toInteger' = foldl' f 0
   where
     f a d = a * 3 + fromIntegral (fromEnum d)
+
+add :: BTNum -> BTNum -> BTNum
+add a b = zeroStrip $ uncurry (:) $ mapAccumR addDigit Zero $ zip a' b'
+  where
+    a' = zeroPad (lb - la) a
+    b' = zeroPad (la - lb) b
+    la = length a
+    lb = length b
+
+zeroPad :: Int -> BTNum -> BTNum
+zeroPad i ds
+  | i <= 0    = ds
+  | otherwise = Zero : zeroPad (i - 1) ds
+
+zeroStrip :: BTNum -> BTNum
+zeroStrip = dropWhile (== Zero)
+
+addDigit :: BTDigit -> (BTDigit, BTDigit) -> (BTDigit, BTDigit)
+addDigit c (a, b) = (toEnum c', toEnum (r - 1))
+  where
+    (c', r) = divMod (fromEnum a + fromEnum b + fromEnum c + 1) 3
