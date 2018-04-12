@@ -4,13 +4,13 @@ findRingBF :: Int -> Int
 findRingBF target = head $ dropWhile (\x -> x * x < target) [1,3..]
 
 findRing :: Int -> Int
-findRing = (\i -> if even i then i + 1 else i) . ceiling . (sqrt :: Double -> Double) . fromIntegral
+findRing = (`div` 2) . ceiling . (sqrt :: Double -> Double) . fromIntegral
 
 manhattenDistance :: Int -> Int
 manhattenDistance 1 = 0
-manhattenDistance target = ringSteps + offsetSteps
+manhattenDistance target = ring + offset
   where
     ring = findRing target
-    ringSteps = (ring - 1) `div` 2
-    diff = ring * ring - target
-    offsetSteps = abs $ diff `mod` (ring - 1) - ringSteps
+    ringLength = ring * 2 + 1
+    diff = ringLength * ringLength - target
+    offset = abs $ diff `mod` (ring * 2) - ring
