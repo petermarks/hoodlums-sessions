@@ -1,0 +1,7 @@
+.cabal-sandbox
+cabal.sandbox.config
+shell.nix
+*.hi
+*.o
+*.svg
+*.dot
