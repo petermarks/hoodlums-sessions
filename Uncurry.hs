@@ -6,20 +6,23 @@
 -- {-# language ScopedTypeVariables #-}
 -- {-# language DataKinds #-}
 -- {-# language TypeOperators #-}
--- {-# language OverlappingInstances #-}
 
 
 -- At this month's Hoodlums meetup
 -- (https://www.meetup.com/hoodlums/events/hrbdtnyxhbnb/), Pepe
 -- (https://www.meetup.com/hoodlums/members/12783660/) challenged us to write
 -- uncurryN which uncurries a curried function of any arity. We were partially
--- successful, but our solution requires an instance of Uncurry for each
--- argument type we want to support. The version presented here achieves it
--- without that overhead.
+-- successful, but our solution required an instance of Uncurry for each
+-- argument type we wanted to support.
+
+-- I later developed a solution that doesn't have that overhead, but after I
+-- published it, Pepe found a simpler approach that I present here. I've also
+-- included my version and others I went through as they demonstrate some useful
+-- techniques.
 
 module Uncurry where
 
--- For some of the alternative solutions presented at the end of this file,
+-- For some of the alternative solutions given at the end of this file,
 -- Data.Proxy and/or various combinations of the commented out language pragmas
 -- above are required.
 
@@ -80,35 +83,29 @@ type family Uncurried a b where
 -- The problem is that in the base case instance, the compiler doesn't know that
 -- b is not a function and so Uncurried a b is a -> b.
 
--- The solution Pepe used was to write a specific instance for each type he
--- wanted to support, rather than this catch all instance. This works fine and
--- satisfied his requirements, but it would be good not to have this overhead.
+-- The solution Pepe originally used was to write a specific instance for each
+-- type he wanted to support, rather than this catch all instance. This works
+-- fine and satisfied his requirements, but we wanted to find a way to avoid
+-- this overhead.
 
 -- We tried a few ideas including using an associated type family, which can be
--- seen in the previous version of this file, but we couldn't get this working
+-- seen in an earlier version of this file, but we couldn't get this working
 -- during the meetup.
 
 
--- The solution I present here follows Sergey's
--- (https://www.meetup.com/hoodlums/members/194418183/) suggestion of making the
--- output type a class parameter. I think he proposed to use functional
--- dependency to select the correct instance at the call site, but I use a
--- wrapper function instead.
+-- After I published my code (shown later in this file), Pepe discovered that
+-- all we needed to do was to include a constraint telling the compiler that the
+-- base case instance is only used when Uncurried a b is a -> b, and to assure
+-- it that the overlapping instances can be resolved with the contexts given.
 
-uncurryN :: (Uncurried a b ~ o, Uncurry a b o) => (a -> b) -> o
-uncurryN = uncurryN'
+class Uncurry a b where
+  uncurryN :: (a -> b) -> Uncurried a b
 
-class Uncurry a b o where
-  uncurryN' :: (a -> b) -> o
+instance {-# overlaps #-} (Uncurry (a, b) c) => Uncurry a (b -> c) where
+  uncurryN = uncurryN . uncurry2
 
-instance (Uncurried a (b -> c) ~ o, Uncurry (a, b) c o) => Uncurry a (b -> c) o where
-  uncurryN' = uncurryN . uncurry2
-
-instance Uncurry a b (a -> b) where
-  uncurryN' = id
-  
--- Many of the approaches we tried required OverlappingInstances and I'm not
--- quite sure how compiler knows that this doesn't, but hey, I'll take the win.
+instance {-# overlaps #-} (Uncurried a b ~ (a -> b)) => Uncurry a b where
+  uncurryN = id
 
 
 
@@ -116,6 +113,29 @@ instance Uncurry a b (a -> b) where
 -- Alternative solutions follow. These should all work given the necessary
 -- pragmas and imports. You need to comment out the code above as these clash.
 -- ************************************************************
+
+
+
+-- My solution follows Sergey's
+-- (https://www.meetup.com/hoodlums/members/194418183/) suggestion of making the
+-- output type a class parameter. I think he proposed to use functional
+-- dependency to select the correct instance at the call site, but I use a
+-- wrapper function instead.
+
+-- uncurryN :: (Uncurried a b ~ o, Uncurry a b o) => (a -> b) -> o
+-- uncurryN = uncurryN'
+
+-- class Uncurry a b o where
+--   uncurryN' :: (a -> b) -> o
+
+-- instance (Uncurried a (b -> c) ~ o, Uncurry (a, b) c o) => Uncurry a (b -> c) o where
+--   uncurryN' = uncurryN . uncurry2
+
+-- instance Uncurry a b (a -> b) where
+--   uncurryN' = id
+  
+-- Many of the approaches we tried required overlapping instances and I'm not
+-- quite sure how compiler knows that this doesn't, but hey, I'll take the win.
 
 
 
