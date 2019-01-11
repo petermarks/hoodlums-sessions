@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances, UndecidableInstances, DuplicateRecordFields, RecordWildCards #-}
-
 module Main where
 
 import Control.Monad
@@ -16,33 +14,23 @@ import System.IO
 data State = State
   { sMax   :: Int
   , sStack :: [(Int, Int)]
-  , sIndex :: Int
   }
 
 initial :: State
-initial = State 0 [] 0
+initial = State 0 [(0,0)]
 
 -- Complete the largestRectangle function below.
 largestRectangle :: [Int] -> Int
-largestRectangle = sMax . flip step 0 . foldl' step initial
+largestRectangle = sMax . foldl' step initial . zip [0..] . (++ [0])
 
-step :: State -> Int -> State
-step state@State{sStack = [], ..} h = state{sStack = [(h, sIndex)], sIndex = sIndex + 1}
-step state@State{sStack = (hp, i) : stack, ..} h = 
-  let 
-    state' = case compare h hp of
-      EQ -> state
-      GT -> state{sStack = (h, sIndex) : sStack state}
-      LT -> unwind state i h
-  in
-    state'{sIndex = sIndex + 1}
+step :: State -> (Int, Int) -> State
+step state (i,h) = step' state i i h
 
-unwind :: State -> Int -> Int -> State
-unwind state@State{sStack = [], ..} i' h = state{sStack = [(h, i')]}
-unwind state@State{sStack = (hp, i) : stack, ..} i' h = case compare h hp of
+step' :: State -> Int -> Int -> Int -> State
+step' state@State{sStack = (hp, start) : stack} end start' h = case compare h hp of
   EQ -> state
-  GT -> state{sStack = (h, i') : sStack state}
-  LT -> unwind state{sStack = stack, sMax = max sMax (hp * (sIndex - i))} i h
+  GT -> state{sStack = (h, start') : sStack state}
+  LT -> step' State{sStack = stack, sMax = max (sMax state) (hp * (end - start))} end start h
 
 
 naiveLargestRectangle :: [Int] -> Int
