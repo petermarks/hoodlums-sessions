@@ -41,7 +41,7 @@ unwind :: State -> Int -> Int -> State
 unwind state@State{sStack = [], ..} i' h = state{sStack = [(h, i')]}
 unwind state@State{sStack = (hp, i) : stack, ..} i' h = case compare h hp of
   EQ -> state
-  GT -> state{sStack = (h, i') : stack}
+  GT -> state{sStack = (h, i') : sStack state}
   LT -> unwind state{sStack = stack, sMax = max sMax (hp * (sIndex - i))} i h
 
 
